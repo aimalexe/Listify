@@ -1,0 +1,33 @@
+{
+  "name": "Listify",
+  "version": "1.0.0",
+  "description": "This repository contains the backend code for a todo list application built using Node.js. The backend exposes a RESTful API for creating, reading, updating, and deleting todo items. It uses a database to store the todo items and has endpoints for managing user accounts and authentication. The code is organized into different modules for handling different aspects of the application, such as the database, the API routes, and the middleware. The repository also includes scripts for setting up the development and production environments and for deploying the code to a server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "set process.env.NODE_ENV=test && jest --watchAll --detectOpenHandles --verbose",
+    "start": "set process.env.NODE_ENV=development && nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aimalexe/Listify.git"
+  },
+  "keywords": [],
+  "author": "Aimal Khan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aimalexe/Listify/issues"
+  },
+  "homepage": "https://github.com/aimalexe/Listify#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "config": "^3.3.8",
+    "express": "^4.18.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "mongoose": "^6.8.3"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1",
+    "supertest": "^6.3.3"
+  }
+}

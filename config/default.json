@@ -1,0 +1,10 @@
+{
+    "PORT": 3000,
+    "environment": "default",
+    "database":{
+        "databaseUserName": "<databaseUserName>",
+        "password": "<password>",
+        "collectionName": "listify",
+        "connectionString": "mongodb+srv://<databaseUserName>:<password>@learningcluster.ikmhi23.mongodb.net/listify?retryWrites=true&w=majority"
+    }
+}
