@@ -1,7 +1,8 @@
+const { Todo } = require('../../../models/todoSchema');
+
 const request = require("supertest");
 const moment = require("moment");
 const mongoose = require("mongoose");
-const { Todo } = require('../../../models/todoSchema');
 
 jest.setTimeout(70 * 1000);
 
@@ -62,17 +63,54 @@ describe("/api/todos", ()=>{
     }); //end of GET
 
     describe("POST /", ()=>{
+        let title, description, isCompleted, issueDate,
+            dueDate, priority, tags;
+
+        beforeEach(()=>{
+            //Required
+            title = 'Todo';
+            dueDate = moment().add(2, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z'; //two days later
+            //Not required
+            description = 'This is description blah blah blah';
+            priority = 4;
+            tags = ['A todo', 'blah', 'blah'];
+        });
+
         const happyPath = () => {
             return request(server)
                 .post('/api/todos/')
-                .send();
-        }
+                .send({
+                    title, description, dueDate, priority, tags
+                });
+            }
+        it('should return 400 if title is not present', async()=>{
+            title = ''
+            const res = await happyPath();
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('should return 400 if dueDate is not present', async()=>{
+            dueDate = ''
+            const res = await happyPath();
+            expect(res.statusCode).toBe(400);
+        });
 
         it("should send 200 on saving a new todo", async ()=>{
             const res = await happyPath();
             expect(res.statusCode).toBe(200);
         });
 
+        it('should send the saved todo', async ()=>{
+            const res = await happyPath();
+            
+            expect(res.body).toMatchObject({
+                title: title,
+                description: description,
+                dueDate: dueDate,
+                priority: priority, 
+                tags: tags
+            });
+        });
     }); //end of POST
     
 }); //end of /api/todos

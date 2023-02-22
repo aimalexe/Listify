@@ -1,4 +1,6 @@
 const { Todo, validate } = require('../models/todoSchema');
+const isValidRequest = require('../middlewares/isValidRequest_middleware');
+
 const _ = require('lodash');
 const router = require('express').Router();
 
@@ -7,10 +9,7 @@ router.get("/", async (req, res)=>{
     res.status(200).send(todos);
 })
 
-router.post("/", async (req, res)=>{
-    const { error } = validate(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
-
+router.post("/", isValidRequest(validate), async (req, res)=>{
     const todo = new Todo(_.pick(req.body, ["title", "description", "isCompleted", "issueDate", "dueDate", "priority", "tags"]));
     await todo.save()
     res.status(200).send(todo);

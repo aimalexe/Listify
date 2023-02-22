@@ -6,5 +6,6 @@
         "password": "<password>",
         "collectionName": "listify",
         "connectionString": "mongodb+srv://<databaseUserName>:<password>@learningcluster.ikmhi23.mongodb.net/listify?retryWrites=true&w=majority"
-    }
+    },
+    "jwtPrivateKey": "jwtPrivateKey"
 }
