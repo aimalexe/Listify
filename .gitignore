@@ -9,6 +9,7 @@ config/test.json
 dist/
 build/
 target/
+coverage/
 
 # IDE configuration files
 .idea/

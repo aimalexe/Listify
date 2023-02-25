@@ -40,6 +40,7 @@ describe('/api/user', ()=>{
             const res = await happyPath();
 
             expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"name\" is not allowed to be empty/)
         });
 
         it('should return 400 if email is invalid or not provided', async ()=>{
@@ -47,6 +48,7 @@ describe('/api/user', ()=>{
             const res = await happyPath();
 
             expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"email\" is not allowed to be empty/)
         });
 
         it('should return 400 if password is invalid or not provided', async ()=>{
@@ -54,6 +56,7 @@ describe('/api/user', ()=>{
             const res = await happyPath();
 
             expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"password\" is not allowed to be empty/)
         });
 
         it('should return 400 if user is already registered', async ()=>{
