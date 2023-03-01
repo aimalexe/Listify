@@ -1,4 +1,5 @@
 const { Todo } = require('../../../models/todoSchema');
+const { User } = require('../../../models/userSchema'); 
 
 const request = require("supertest");
 const moment = require("moment");
@@ -6,97 +7,193 @@ const mongoose = require("mongoose");
 
 jest.setTimeout(70 * 1000);
 
-describe("/api/todos", ()=>{
-    let server;
+describe("/api/todos/", ()=>{
+    let server,
+        user, userId, userTodoId, todoId, token;
+    const endPoint = '/api/todos/';
 
     beforeEach(async ()=>{
         server = await require("../../../index");
+
+        userTodoId = mongoose.Types.ObjectId();
+        userId = mongoose.Types.ObjectId();
+        todoId = mongoose.Types.ObjectId();
+
+        user = new User({
+            _id: userId,
+            name: "test user",
+            email: "test@test.com",
+            password: "12345678"
+        });
+        user.save();
+
+        todo = new Todo({
+            _id: userTodoId,
+            user:{
+                _id: userId,
+                name: user.name 
+            },
+            todo: {
+                _id: todoId,
+                title: "Title",
+                description: "Some description of this todo",
+                dueDate: moment().add(2, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z',
+                priority: 3,
+                tags: ["Tag 1", "tag 2", "Blah blah"]
+            }
+        });
+        await todo.save();
+
+        token = user.generateAuthToken();
     });
 
     afterEach(async ()=>{
         await Todo.deleteMany({});
+        await User.deleteMany({});
         await server.close();
     });
 
     describe("GET /", ()=>{
-        let todo;
-        let todoId;
-
-        beforeEach(async ()=>{
-            todoId = mongoose.Types.ObjectId();
-            todo = new Todo({
-                _id: todoId,
-                title: "Title",
-                description: "Some description of this todo",
-                dueDate: "2023-01-10T11:01:58.135Z",
-                priority: 5,
-                tags: []
-            });
-            await todo.save();
-        });
         const happyPath = () => {
             return request(server)
-                .get('/api/todos/')
+                .get(endPoint)
+                .set('x-auth-token', token)
                 .send();
         }
 
-        it("should return status code 200", async ()=>{
+        it("should return 401 if user is not loged in (have no token)", async()=>{
+            token = '';
+            const res = await happyPath();
+
+            expect(res.status).toBe(401);
+            expect(res.text).toMatch(/Access denied. No token provided./)
+        });
+
+        it("should return 400 if invalid token is provided", async()=>{
+            token = 'invalidToken1234';
+            const res = await happyPath();
+            
+            expect(res.status).toBe(400);
+            expect(res.text).toMatch(/Invalid token./);
+        });
+        
+        it("should return 404 if user is not found (have not yet signed up)", async()=>{
+            userId = mongoose.Types.ObjectId();
+            token = User({Id: userId}).generateAuthToken();
+            const res = await happyPath();
+
+            expect(res.status).toBe(404)
+            expect(res.text).toMatch(/User is not registered/)
+        });
+
+        it("should return 404 if user have no todos yet", async ()=>{
+            //todo..
+            await Todo.deleteMany({user: { _id: userId }});
+
+            const res = await happyPath();
+
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(/No todos yet!/);
+        });
+
+        it("should return status code 200 with sending array of todo's", async ()=>{
             const res = await happyPath();
 
             expect(res.statusCode).toBe(200);
-        });
-
-        it("should return array of all the todo's", async ()=>{
-            const res = await happyPath();
-
             expect(Array.isArray(res.body)).toBeTruthy();
             expect(res.body.length).toBe(1);
         });
 
         it("should contains the todo's ", async ()=>{
+            // await user.save();
+            // await todo.save();
             const res = await happyPath();
 
-            expect(res.body.some(t => t.title === todo.title )).toBeTruthy();
-            expect(res.body.some(t => t._id == todoId)).toBeTruthy();
-            expect(res.body.some(t => moment(t.dueDate).isSame(todo.dueDate))).toBeTruthy();
+            expect(res.body.some(t => t._id == userTodoId)).toBeTruthy();
+            expect(res.body.some(t => t.user._id == userId)).toBeTruthy();
+            expect(res.body.some(t => t.user.name == todo.user.name)).toBeTruthy();
+            expect(res.body.some(t => t.todo.title === todo.todo.title )).toBeTruthy();
+            expect(res.body.some(t => moment(t.todo.dueDate).isSame(todo.todo.dueDate))).toBeTruthy();
         });
     }); //end of GET
 
     describe("POST /", ()=>{
-        let title, description, isCompleted, issueDate,
-            dueDate, priority, tags;
+        let title, description, dueDate, priority, tags;
 
         beforeEach(()=>{
             //Required
-            title = 'Todo';
+            title = 'Todo Title';
             dueDate = moment().add(2, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z'; //two days later
             //Not required
-            description = 'This is description blah blah blah';
+            description = 'This is a little bit description of this todo';
             priority = 4;
-            tags = ['A todo', 'blah', 'blah'];
+            tags = ['A todo', 'test', 'code'];
         });
 
         const happyPath = () => {
             return request(server)
-                .post('/api/todos/')
+                .post(endPoint)
+                .set('x-auth-token', token)
                 .send({
-                    title, description, dueDate, priority, tags
+                    userId, title, description, dueDate, priority, tags
                 });
-            }
-        it('should return 400 if title is not present', async()=>{
+        }
+
+        it('should return 400 if title is not present or valid', async()=>{
             title = ''
             const res = await happyPath();
+
             expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"title\" is not allowed to be empty/);
+
         });
 
-        it('should return 400 if dueDate is not present', async()=>{
+        it('should return 400 if userId is not present or valid', async()=>{
+            userId = ''
+            const res = await happyPath();
+
+            expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"userId\" is not allowed to be empty/);
+
+        });
+
+        it('should return 400 if dueDate is not present or valid', async()=>{
             dueDate = ''
             const res = await happyPath();
+
             expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"dueDate\" must be a valid date/);
+
+        });
+
+        it("should return 401 if user is not logedin (have no token)", async()=>{
+            token = '';
+            const res = await happyPath();
+
+            expect(res.status).toBe(401);
+            expect(res.text).toMatch(/Access denied. No token provided./)
+        });
+
+        it("should return 400 if invalid token is provided", async()=>{
+            token = 'invalidToken1234';
+            const res = await happyPath();
+            
+            expect(res.status).toBe(400);
+            expect(res.text).toMatch(/Invalid token./);
+        });
+        
+        it("should return 404 if user is not found (have not yet signed up)", async()=>{
+            await User.findByIdAndDelete(userId);
+
+            const res = await happyPath();
+
+            expect(res.status).toBe(404)
+            expect(res.text).toMatch(/User is not registered/)
         });
 
         it("should send 200 on saving a new todo", async ()=>{
             const res = await happyPath();
+
             expect(res.statusCode).toBe(200);
         });
 
@@ -104,13 +201,186 @@ describe("/api/todos", ()=>{
             const res = await happyPath();
             
             expect(res.body).toMatchObject({
-                title: title,
-                description: description,
-                dueDate: dueDate,
-                priority: priority, 
-                tags: tags
+                user:{
+                    _id: userId,
+                    name: user.name
+                },
+                todo:{
+                    title: title,
+                    description: description,
+                    dueDate: dueDate,
+                    priority: priority, 
+                    tags: tags
+                }
             });
         });
     }); //end of POST
     
+    describe("PUT /:id", ()=>{
+        let title, description, isCompleted, issueDate,
+            dueDate, priority, tags;
+
+        beforeEach(()=>{
+            //Required
+            title = 'Updated Todo Title';
+            dueDate = moment().add(2, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z'; //two days later
+            //Not required
+            description = 'This is a little Changed and Updated bit description of this todo';
+            priority = 4;
+            tags = ['A todo', 'test', 'code', 'updated'];
+            isCompleted = true;
+        });
+
+        const happyPath = () =>{
+            return request(server)
+                .put(endPoint + userTodoId)
+                .set('x-auth-token', token)
+                .send({
+                    userId, title, description, dueDate, priority,
+                    tags, isCompleted
+                });
+        }
+        it('should return 400 if title is not present or valid', async()=>{
+            title = ''
+            const res = await happyPath();
+
+            expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"title\" is not allowed to be empty/);
+
+        });
+
+        it('should return 400 if userId is not present or valid', async()=>{
+            userId = ''
+            const res = await happyPath();
+
+            expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"userId\" is not allowed to be empty/);
+
+        });
+
+        it('should return 400 if dueDate is not present or valid', async()=>{
+            dueDate = ''
+            const res = await happyPath();
+
+            expect(res.statusCode).toBe(400);
+            expect(res.text).toMatch(/\"dueDate\" must be a valid date/);
+
+        });
+
+        it("should return 401 if user is not logged in (have no token)", async()=>{
+            token = '';
+            const res = await happyPath();
+
+            expect(res.status).toBe(401);
+            expect(res.text).toMatch(/Access denied. No token provided./);
+        });
+
+        it("should return 400 if invalid token is provided", async()=>{
+            token = 'invalidToken1234';
+            const res = await happyPath();
+            
+            expect(res.status).toBe(400);
+            expect(res.text).toMatch(/Invalid token./);
+        });
+        
+        it("should return 404 if invalid user's todo id is provided", async()=>{
+            userTodoId = '12345'
+            const res = await happyPath();
+            
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(/the requested todo ID is invalid./);
+        });
+        
+        it("should return 404 if no todo is found with given id", async()=>{
+            userTodoId = mongoose.Types.ObjectId();
+            const res = await happyPath();
+            
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(`Todo with ID:${userTodoId} is't found!`);
+        });
+        
+        it("should return 404 if user is not found (have not yet signed up)", async()=>{
+            await User.findByIdAndDelete(userId);
+
+            const res = await happyPath();
+
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(/User is not registered/);
+        });
+        
+        it("should return 200 when todo is updated successfully", async()=>{
+            const res = await happyPath();
+
+            expect(res.status).toBe(200);
+        });
+
+        it("should send the seted / updated todo", async()=>{
+            const res = await happyPath();
+
+            expect(res.body).toMatchObject({
+                user:{
+                    _id: userId,
+                    name: user.name
+                },
+                todo:{
+                    title: title,
+                    description: description,
+                    dueDate: dueDate,
+                    priority: priority, 
+                    tags: tags
+                }
+            });
+        });
+    });//end of PUT /api/todos/:id
+
+    describe("DELETE /:id", ()=>{
+        const happyPath = () =>{
+            return request(server)
+                .delete(endPoint + userTodoId)
+                .set('x-auth-token', token)
+                .send();
+        }
+
+        it("should return 404 if invalid user's todo id is provided", async()=>{
+            userTodoId = '12345'
+            const res = await happyPath();
+            
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(/the requested todo ID is invalid./);
+        });
+
+        it("should return 401 if user is not logged in (have no token)", async()=>{
+            token = '';
+            const res = await happyPath();
+
+            expect(res.status).toBe(401);
+            expect(res.text).toMatch(/Access denied. No token provided./);
+        });
+
+        it("should return 400 if invalid token is provided", async()=>{
+            token = 'invalidToken1234';
+            const res = await happyPath();
+            
+            expect(res.status).toBe(400);
+            expect(res.text).toMatch(/Invalid token./);
+        });
+
+        it("should return 404 if no todo is found with given id", async()=>{
+            userTodoId = mongoose.Types.ObjectId();
+            const res = await happyPath();
+            
+            expect(res.status).toBe(404);
+            expect(res.text).toMatch(`Todo with ID:${userTodoId} is't found!`);
+        });
+        
+        it("should return 200 when todo is Deleted successfully from Database", async()=>{
+            const res = await happyPath();
+            const todoInDb = await Todo.findById(userTodoId);
+
+            expect(res.status).toBe(200);
+            expect(res.text).toMatch(/Deleted Successfully!/);
+            expect(todoInDb).toBeNull();
+        });
+    });//end of DELETE /api/todos/:id
+
 }); //end of /api/todos
