@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "set process.env.NODE_ENV=test && jest --watchAll --detectOpenHandles --verbose",
-    "start": "set process.env.NODE_ENV=development && nodemon index.js"
+    "dev": "set process.env.NODE_ENV=development && nodemon index.js",
+    "prod": "set process.env.NODE_ENV=production",
+    "start": "nodemon index.js"
+  },
+  "engines": {
+    "node": ">=14.18.1"
   },
   "repository": {
     "type": "git",
@@ -20,8 +25,10 @@
   "homepage": "https://github.com/aimalexe/Listify#readme",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "compression": "^1.7.4",
     "config": "^3.3.8",
     "express": "^4.18.2",
+    "helmet": "^6.0.1",
     "joi": "^17.8.3",
     "joi-objectid": "^4.0.2",
     "jsonwebtoken": "^9.0.0",
