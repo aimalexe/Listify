@@ -1,14 +1,23 @@
 const { User } = require('../../../models/userSchema');
 
 const request = require('supertest');
+const mongoose = require('mongoose');
 
 jest.setTimeout(70 * 1000);
 
-describe('/api/user', ()=>{
+describe('/api/user/', ()=>{
     let server;
+    let name, email, password, user;
+    const endPoint = '/api/user/';
 
     beforeEach(async ()=>{
         server = await require("../../../index");
+
+        name = "Name";
+        email = "email@gmail.com";
+        password = "password123456";
+
+        user = new User({name, email, password});
     });
 
     afterEach(async ()=>{
@@ -16,20 +25,64 @@ describe('/api/user', ()=>{
         await server.close();
     });
 
-    describe('POST /', ()=>{
-        let name, email, password, user;
-
-        beforeEach(()=>{
-            name = "Name";
-            email = "email@gmail.com";
-            password = "password123456";
-
-            user = new User({name, email, password});
-        });
+    describe("GET /me", ()=>{
+        let token, userId;
 
         const happyPath = () => {
             return request(server)
-                .post('/api/user/')
+                .get(endPoint + 'me/')
+                .set('x-auth-token', token)
+                .send();
+        }
+
+        beforeEach(async ()=>{
+            userId = mongoose.Types.ObjectId();
+            user._id = userId;
+            await user.save();
+
+            token = new User({_id: userId}).generateAuthToken();
+        })
+
+        it("should return 401 if user is not loged in (have no token)", async()=>{
+            token = '';
+            const res = await happyPath();
+
+            expect(res.status).toBe(401);
+            expect(res.text).toMatch(/Access denied. No token provided./)
+        });
+
+        it("should return 400 if invalid token is provided", async()=>{
+            token = 'invalidToken1234';
+            const res = await happyPath();
+            
+            expect(res.status).toBe(400);
+            expect(res.text).toMatch(/Invalid token./);
+        });
+        
+        it("should return 404 if user is not found (have not yet signed up)", async()=>{
+            userId = mongoose.Types.ObjectId();
+            token = User({Id: userId}).generateAuthToken();
+            const res = await happyPath();
+
+            expect(res.status).toBe(404)
+            expect(res.text).toMatch(/User is not registered/)
+        });
+        
+        it("should return 200 with user's data except password", async()=>{
+            const res = await happyPath();
+
+            expect(res.status).toBe(200)
+            expect(Object.keys(res.body)).toEqual(expect.arrayContaining([
+                '_id', 'name', 'email' 
+            ]));
+            expect(res.body.password).toBeUndefined();
+        });
+    });
+    describe('POST /', ()=>{
+
+        const happyPath = () => {
+            return request(server)
+                .post(endPoint)
                 .send({
                     name, email, password
                 });

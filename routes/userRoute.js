@@ -1,13 +1,17 @@
 const { User , validate } = require('../models/userSchema');
 const isValidRequest = require('../middlewares/isValidRequest_middleware');
 const isAuthenticated = require('../middlewares/isAuthenticated_middleware');
+
 const router = require('express').Router();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 
-router.get('/me', isAuthenticated, async (req, res) => {
-    const userId  = req.user._id;
-    const me = await User.findById(userId).select('-password');
+router.get('/me', isAuthenticated, async (req, res) => { //Route to see his profile
+    const myId  = req.user._id;
+    
+    const me = await User.findById(myId).select('-password');
+    if(!me) return res.status(404).send('User is not registered');
+    
     res.status(200).send(me);
 });
 

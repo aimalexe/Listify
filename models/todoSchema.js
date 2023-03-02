@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 
-const todoOfUser = new mongoose.Schema({
+const todo = new mongoose.Schema({
     user: {
         type: new mongoose.Schema({
             name:{
@@ -15,49 +15,46 @@ const todoOfUser = new mongoose.Schema({
         required: true
     },
     todo: {
-        type: new mongoose.Schema({
-            title: {
-                type: String,
-                minLength: 3,
-                maxLength: 50,
-                trim: true,
-                required: true
-            },
-            description: {
-                type: String,
-                minLength: 3,
-                maxLength: 1000,
-                required: false,
-            },
-            isCompleted: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
-            issueDate: {
-                type: Date,
-                default: Date.now
-            },
-            dueDate: {
-                type: Date,
-                required: true,
-            },
-            priority: {
-                type: Number,
-                min: 1,
-                max: 5,
-                default: 1
-            },
-            tags: {
-                type: [String],
-                required: false
-            }
-        }),
-        required: true
+        title: {
+            type: String,
+            minLength: 3,
+            maxLength: 50,
+            trim: true,
+            required: true
+        },
+        description: {
+            type: String,
+            minLength: 3,
+            maxLength: 1000,
+            required: false,
+        },
+        isCompleted: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        issueDate: {
+            type: Date,
+            default: Date.now
+        },
+        dueDate: {
+            type: Date,
+            required: true,
+        },
+        priority: {
+            type: Number,
+            min: 1,
+            max: 5,
+            default: 1
+        },
+        tags: {
+            type: [String],
+            required: false
+        }
     }
 });
 
-function validateTodoOfUser(todo){
+function validateTodo(todo){
     const isValid = Joi.object({
         userId: Joi
             .objectId()
@@ -92,7 +89,7 @@ function validateTodoOfUser(todo){
     return isValid.validate(todo);
 }
 
-const TodoOfUser = mongoose.model("TodoOfUser", todoOfUser);
+const Todo = mongoose.model("Todo", todo);
 
-module.exports.Todo = TodoOfUser;
-module.exports.validate = validateTodoOfUser;
+module.exports.Todo = Todo;
+module.exports.validate = validateTodo;

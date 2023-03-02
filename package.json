@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "set process.env.NODE_ENV=test && jest --watchAll --detectOpenHandles --verbose",
-    "start": "set process.env.NODE_ENV=development && nodemon index.js"
+    "dev": "set process.env.NODE_ENV=development && nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -22,12 +22,14 @@
     "bcrypt": "^5.1.0",
     "config": "^3.3.8",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
     "joi": "^17.8.3",
     "joi-objectid": "^4.0.2",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "mongoose": "^6.8.3"
+    "mongoose": "^6.8.3",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "jest": "^29.3.1",
