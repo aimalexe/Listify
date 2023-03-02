@@ -7,10 +7,10 @@
     "test": "set process.env.NODE_ENV=test && jest --watchAll --detectOpenHandles --verbose",
     "dev": "set process.env.NODE_ENV=development && nodemon index.js",
     "prod": "set process.env.NODE_ENV=production",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "engines": {
-    "node": ">=14.18.1"
+    "node": "14.18.1"
   },
   "repository": {
     "type": "git",
