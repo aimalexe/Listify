@@ -1,6 +1,6 @@
 const config = require('config');
 const winston = require('winston');
-require('express-async-errors');
+
 
 //A custom logger which can be used;
 /*
@@ -16,25 +16,28 @@ const logger = new winston.createLogger({
 module.exports = function () {
     //? An Event listener and handler of uncaught errors
     process.on('uncaughtException', (excep) => {
+        //throw excep;
         winston.error(excep);
     });
 
     winston.exceptions.handle(
         new winston.transports.File({
-            filename: "../logs/uncaughtExceptions.log",
+            filename: "./logs/uncaughtExceptions.log",
             level: "info",
+            colorize: true,
             handleExceptions: true
         })
     );
 
     //? Event Listener and Handler of Unhandled Rejections.
     process.on('unhandledRejection', (excep)=>{
+        //throw excep;
         winston.error(excep);
     });
 
     winston.add(
         new winston.transports.File({
-            filename: "../logs/unhandledRejections.log",
+            filename: "./logs/unhandledRejections.log",
             level: "info",
             handleRejections: true
         })
@@ -44,9 +47,9 @@ module.exports = function () {
     if(config.get('environment') === 'development'){
         winston.add(
             new winston.transports.File({
-                filename: "../logs/developmentLogs.log",
+                filename: "./logs/developmentLogs.log",
                 level: "verbose",
-                handleExceptions: true
+                //handleExceptions: true
             })
         );
     }
@@ -54,7 +57,7 @@ module.exports = function () {
     //? Logging Errors in testing
     if(config.get('environment') === 'testing'){
         winston.add(new winston.transports.File({
-            filename: "../logs/testingLogs.log"
+            filename: "./logs/testingLogs.log"
         }));
     }
 

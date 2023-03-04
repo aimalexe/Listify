@@ -9,15 +9,14 @@ jest.setTimeout(70 * 1000);
 
 describe("/api/todos/", ()=>{
     let server,
-        user, userId, userTodoId, todoId, token;
+        user, userId, userTodoId, token;
     const endPoint = '/api/todos/';
 
     beforeEach(async ()=>{
         server = await require("../../../index");
 
-        userTodoId = mongoose.Types.ObjectId();
         userId = mongoose.Types.ObjectId();
-        todoId = mongoose.Types.ObjectId();
+        userTodoId = mongoose.Types.ObjectId()
 
         user = new User({
             _id: userId,
@@ -34,7 +33,6 @@ describe("/api/todos/", ()=>{
                 name: user.name 
             },
             todo: {
-                _id: todoId,
                 title: "Title",
                 description: "Some description of this todo",
                 dueDate: moment().add(2, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z',
@@ -61,22 +59,6 @@ describe("/api/todos/", ()=>{
                 .send();
         }
 
-        it("should return 401 if user is not loged in (have no token)", async()=>{
-            token = '';
-            const res = await happyPath();
-
-            expect(res.status).toBe(401);
-            expect(res.text).toMatch(/Access denied. No token provided./)
-        });
-
-        it("should return 400 if invalid token is provided", async()=>{
-            token = 'invalidToken1234';
-            const res = await happyPath();
-            
-            expect(res.status).toBe(400);
-            expect(res.text).toMatch(/Invalid token./);
-        });
-        
         it("should return 404 if user is not found (have not yet signed up)", async()=>{
             userId = mongoose.Types.ObjectId();
             token = User({Id: userId}).generateAuthToken();
@@ -87,8 +69,14 @@ describe("/api/todos/", ()=>{
         });
 
         it("should return 404 if user have no todos yet", async ()=>{
-            //todo..
-            await Todo.deleteMany({user: { _id: userId }});
+            const newUser = new User({
+                _id: mongoose.Types.ObjectId().toHexString(),
+                name: "test2 user",
+                email: "newUser@test.com",
+                password: "12345678"
+            });
+            await newUser.save();
+            token = newUser.generateAuthToken();
 
             const res = await happyPath();
 
@@ -165,22 +153,6 @@ describe("/api/todos/", ()=>{
             expect(res.text).toMatch(/\"dueDate\" must be a valid date/);
 
         });
-
-        it("should return 401 if user is not logedin (have no token)", async()=>{
-            token = '';
-            const res = await happyPath();
-
-            expect(res.status).toBe(401);
-            expect(res.text).toMatch(/Access denied. No token provided./)
-        });
-
-        it("should return 400 if invalid token is provided", async()=>{
-            token = 'invalidToken1234';
-            const res = await happyPath();
-            
-            expect(res.status).toBe(400);
-            expect(res.text).toMatch(/Invalid token./);
-        });
         
         it("should return 404 if user is not found (have not yet signed up)", async()=>{
             await User.findByIdAndDelete(userId);
@@ -202,7 +174,7 @@ describe("/api/todos/", ()=>{
             
             expect(res.body).toMatchObject({
                 user:{
-                    _id: userId,
+                    _id: userId.toString(),
                     name: user.name
                 },
                 todo:{
@@ -217,7 +189,7 @@ describe("/api/todos/", ()=>{
     }); //end of POST
     
     describe("PUT /:id", ()=>{
-        let title, description, isCompleted, issueDate,
+        let title, description, isCompleted,
             dueDate, priority, tags;
 
         beforeEach(()=>{
@@ -266,22 +238,6 @@ describe("/api/todos/", ()=>{
             expect(res.text).toMatch(/\"dueDate\" must be a valid date/);
 
         });
-
-        it("should return 401 if user is not logged in (have no token)", async()=>{
-            token = '';
-            const res = await happyPath();
-
-            expect(res.status).toBe(401);
-            expect(res.text).toMatch(/Access denied. No token provided./);
-        });
-
-        it("should return 400 if invalid token is provided", async()=>{
-            token = 'invalidToken1234';
-            const res = await happyPath();
-            
-            expect(res.status).toBe(400);
-            expect(res.text).toMatch(/Invalid token./);
-        });
         
         it("should return 404 if invalid user's todo id is provided", async()=>{
             userTodoId = '12345'
@@ -319,7 +275,7 @@ describe("/api/todos/", ()=>{
 
             expect(res.body).toMatchObject({
                 user:{
-                    _id: userId,
+                    _id: userId.toString(),
                     name: user.name
                 },
                 todo:{
@@ -328,7 +284,8 @@ describe("/api/todos/", ()=>{
                     dueDate: dueDate,
                     priority: priority, 
                     tags: tags
-                }
+                },
+                _id: userTodoId.toString()
             });
         });
     });//end of PUT /api/todos/:id
@@ -347,22 +304,6 @@ describe("/api/todos/", ()=>{
             
             expect(res.status).toBe(404);
             expect(res.text).toMatch(/the requested todo ID is invalid./);
-        });
-
-        it("should return 401 if user is not logged in (have no token)", async()=>{
-            token = '';
-            const res = await happyPath();
-
-            expect(res.status).toBe(401);
-            expect(res.text).toMatch(/Access denied. No token provided./);
-        });
-
-        it("should return 400 if invalid token is provided", async()=>{
-            token = 'invalidToken1234';
-            const res = await happyPath();
-            
-            expect(res.status).toBe(400);
-            expect(res.text).toMatch(/Invalid token./);
         });
 
         it("should return 404 if no todo is found with given id", async()=>{

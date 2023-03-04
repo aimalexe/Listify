@@ -22,6 +22,4 @@ module.exports = function(){
 
     if(!config.get("database.clusterName"))
         throw new Error('FATAL ERROR: DATABASE CLUSTER is not defined.');
-
-
 }

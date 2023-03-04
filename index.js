@@ -2,7 +2,7 @@ const app = require('express')();
 const config = require('config');
 const winston = require('winston');
 
-require('./startups/logging')(); //? for logging
+require('./startups/logging')(); //? call for default winston logging
 require('./startups/connectDatabase')(); //? Connect with database
 require('./startups/routes')(app);  //? Endpoints are included from here.
 require('./startups/production')(app); //? Middleware for production.

@@ -10,8 +10,10 @@ describe('POST /api/auth', ()=>{
 
     beforeEach(async ()=>{
         server = await require("../../../index");
+
         email = 'test@email.com';
         password = 'password12345';
+        
         user = new User({email, password, name: "Test User" });
         await user.save();
     });
@@ -59,12 +61,6 @@ describe('POST /api/auth', ()=>{
         expect(res.text).toMatch(/Invalid email or password!/);
     });
 
-    it('should return 200 if a valid user', async ()=>{
-        const res = await happyPath();
-        //? Why this is failing.
-        expect(res.statusCode).toBe(200);
-    });
-
     it('should set x-auth-token in headers of valid user', async ()=>{
         await user.save();
         const res = await happyPath();
@@ -72,18 +68,17 @@ describe('POST /api/auth', ()=>{
         expect(res.header["x-auth-token"]).not.toBeNull();
     });
 
-    it('should send name, email, _id but not password ', async ()=>{
+    it('should send status 200 and also name, email, _id but not password ', async ()=>{
         const res = await happyPath();
-
+    
+    //! Not passing tests.
+        expect(res.statusCode).toBe(200);
+        expect(res.header['x-auth-token']).toBeDefined();
+        expect(res.body._id).toBe(user._id.toHexString());
+        expect(res.body.name).toBe(user.name);
+        expect(res.body.email).toBe(email);
         expect(res.body.password).toBeUndefined();
-        //? Why this is failing
-        expect(Object.keys(res.body)).toEqual(expect.arrayContaining([
-            '_id', 'name', 'email'
-        ]));
 
-        //expect(res.body.name).toBe(user.name);
-        // expect(res.body._id).toBe(user._id.toString());
-        // expect(res.body.email).toBe(email);
     });
     
 

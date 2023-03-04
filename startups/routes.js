@@ -14,11 +14,12 @@ module.exports = function(app){
         next();
     }
     router.use(logger); //? logs the HTTP method and URL of incoming requests to the server.
+    app.use(error); //? Handling Errors of Server.
     app.use(express.json());    //? Middleware to parse JSON-encoded request bodies
     
     app.use("/api/user", user); //? Signup endpoint for a new user.
     app.use("/api/auth", auth); //? Login endpoint for existing user.
     app.use("/api/todos", todo);    //? Todos endpoint for a specified user.
-    app.use(error); //? Handling Errors of Server.
+
 
 }
