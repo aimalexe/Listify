@@ -13,61 +13,65 @@ This repository contains the backend code for a todo list application built usin
 
 
 ## Project Structure
+```
+ Listify/
+    |
+    |--  config/
+    |     |-- default.json
+    |     |-- development.json
+    |     |-- test.json
+    |
+    |-- middlewares/
+    |     |-- isAuthenticated_middleware.js
+    |     |-- isValidObjectId_middleware.js
+    |     |-- isValidRequest_middleware.js
+    |     |-- error_middleware.js
+    |
+    |-- models/
+    |     |-- todoSchema.js
+    |     |-- userSchema.js
+    |
+    |-- routes/
+    |     |-- authRoute.js
+    |     |-- todosRoute.js
+    |     |-- userRoute.js
+    |
+    |-- startups/
+    |     |-- connectDatabase.js
+    |     |-- routes.js
+    |     |-- configurations.js
+    |     |-- logging.js
+    |
+    |-- tests/
+    |     |--integration/
+    |     |     |-- routes/
+    |     |     |     |-- authRoute.spec.js
+    |     |     |     |-- todosRoute.test.js
+    |     |     |     |-- userRoute.spec.js
+    |     |     |
+    |     |     |-- middlewares/
+    |     |           |-- isAuthenticated_middleware.js
+    |     |
+    |     |-- unit
+    |          |-- middlewares/
+    |          |     |-- error_middleware.test.js
+    |          |     |-- isAuthenticated_middleware.test.js
+    |          |
+    |          |-- models/
+    |          |     |--userSchema.test.js
+    |          | 
+    |          |--startups/
+    |                |-- connectDatabase.test.js
+    | 
+    |-- .gitignore
+    |-- index.js
+    |-- README.md
+    |-- package.json
+    |-- node_modules/
 
-*  Listify/
-|
-|--  config/
-| &nbsp;&nbsp;&nbsp;&nbsp; |-- default.json
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- development.json
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- test.json
-|
-|-- middlewares/
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- isAuthenticated_middleware.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- isValidObjectId_middleware.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- isValidRequest_middleware.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- error_middleware.js
-|
-|-- models/
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- todoSchema.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- userSchema.js
-|
-|-- routes/
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- authRoute.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- todosRoute.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- userRoute.js
-|
-|-- startups/
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- connectDatabase.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- routes.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- configurations.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- logging.js
-|
-|-- tests/
-| &nbsp;&nbsp;&nbsp;&nbsp;|--integration/
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- routes/
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- authRoute.spec.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- todosRoute.test.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- userRoute.spec.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- middlewares/
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- isAuthenticated_middleware.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|
-| &nbsp;&nbsp;&nbsp;&nbsp;|-- unit
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- middlewares/
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- error_middleware.test.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- isAuthenticated_middleware.test.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- models/
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;&nbsp;|--userSchema.test.js
-| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; 
-|  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|--startups/
-| &nbsp;&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|-- connectDatabase.js
-| 
-|-- .gitignore
-|-- index.js
-|-- README.md
-|-- package.json
-|-- node_modules/
+```
+
+*/
 ## Getting Started
 
 To get started with the backend, follow these steps:
@@ -85,6 +89,7 @@ To get started with the backend, follow these steps:
 3. `http://localhost:3000/api/user/`
 4. `http://localhost:3000/api/auth/`
 
+<!--
 ## Deployment
 
 To deploy the backend to a server, follow these steps:
@@ -94,3 +99,4 @@ To deploy the backend to a server, follow these steps:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+-->
